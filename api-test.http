@@ -1,0 +1,241 @@
+###
+# REST Client test file for Laravel API
+# Extension: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+# Not: baseUrl ve apiPrefix değerlerini ortamınıza göre güncelleyin (Laragon/PHP Artisan Serve vb.)
+
+@baseUrl = http://localhost:8000/api
+@baseUrlRoot = http://localhost:8000
+@contentType = application/json; charset=utf-8
+@accept = application/json
+
+### Health check (opsiyonel, web route)
+GET {{baseUrlRoot}}/
+Accept: {{accept}}
+
+###
+# MOVIES
+###
+# List movies
+GET {{baseUrl}}/movies
+Accept: {{accept}}
+
+### Create movie (JSON)
+# @name createMovie
+POST {{baseUrl}}/movies
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "title": "Inception III",
+  "description": "A mind-bending thriller.",
+  "duration": 148,
+  "genre": "Sci-Fi",
+  "rating": "PG-13",
+  "director": "Christopher Nolan",
+  "cast": "Leonardo DiCaprio, Joseph Gordon-Levitt",
+  "poster_image": "https://example.com/poster.jpg",
+  "trailer_url": "https://example.com/trailer.mp4",
+  "release_date": "2010-07-16",
+  "is_active": true
+}
+
+### Create movie (Form-encoded - Test Amaçlı)
+# @name createMovieForm
+POST {{baseUrl}}/movies
+Content-Type: application/x-www-form-urlencoded
+Accept: {{accept}}
+
+title=Inception+III&description=A+mind-bending+thriller.&duration=148&genre=Sci-Fi&rating=PG-13&director=Christopher+Nolan&cast=Leonardo+DiCaprio%2C+Joseph+Gordon-Levitt&poster_image=https%3A%2F%2Fexample.com%2Fposter.jpg&trailer_url=https%3A%2F%2Fexample.com%2Ftrailer.mp4&release_date=2010-07-16&is_active=1
+
+@movieId = {{createMovie.response.body.$.id}}
+
+### Get movie by id
+GET {{baseUrl}}/movies/{{movieId}}
+Accept: {{accept}}
+
+### Update movie
+PUT {{baseUrl}}/movies/{{movieId}}
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "genre": "Science Fiction",
+  "is_active": true
+}
+
+### Delete movie
+DELETE {{baseUrl}}/movies/{{movieId}}
+Accept: {{accept}}
+
+###
+# HALLS
+###
+# List halls
+GET {{baseUrl}}/halls
+Accept: {{accept}}
+
+### Create hall
+# @name createHall
+POST {{baseUrl}}/halls
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "name": "Salon 1",
+  "capacity": 120,
+  "row_count": 10,
+  "seats_per_row": 12,
+  "hall_type": "standard",
+  "screen_type": "silver",
+  "sound_system": "dolby",
+  "is_active": true
+}
+
+@hallId = {{createHall.response.body.$.id}}
+
+### Get hall by id
+GET {{baseUrl}}/halls/{{hallId}}
+Accept: {{accept}}
+
+### Update hall
+PATCH {{baseUrl}}/halls/{{hallId}}
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "name": "Salon 1A",
+  "capacity": 130
+}
+
+### Delete hall
+DELETE {{baseUrl}}/halls/{{hallId}}
+Accept: {{accept}}
+
+###
+# SEATS
+###
+# List seats
+GET {{baseUrl}}/seats
+Accept: {{accept}}
+
+### Create seat
+# @name createSeat
+POST {{baseUrl}}/seats
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "hall_id": {{hallId}},
+  "row_number": "A",
+  "seat_number": 1,
+  "seat_type": "standard",
+  "is_active": true
+}
+
+@seatId = {{createSeat.response.body.$.id}}
+
+### Get seat by id
+GET {{baseUrl}}/seats/{{seatId}}
+Accept: {{accept}}
+
+### Update seat
+PUT {{baseUrl}}/seats/{{seatId}}
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "seat_type": "vip"
+}
+
+### Delete seat
+DELETE {{baseUrl}}/seats/{{seatId}}
+Accept: {{accept}}
+
+###
+# SHOWTIMES
+###
+# List showtimes
+GET {{baseUrl}}/showtimes
+Accept: {{accept}}
+
+### Create showtime
+# @name createShowtime
+POST {{baseUrl}}/showtimes
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "movie_id": {{movieId}},
+  "hall_id": {{hallId}},
+  "show_date": "2025-09-01",
+  "show_time": "20:00:00",
+  "base_price": 100.00,
+  "vip_price": 150.00,
+  "available_seats": 120,
+  "is_active": true
+}
+
+@showtimeId = {{createShowtime.response.body.$.id}}
+
+### Get showtime by id
+GET {{baseUrl}}/showtimes/{{showtimeId}}
+Accept: {{accept}}
+
+### Update showtime
+PATCH {{baseUrl}}/showtimes/{{showtimeId}}
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "available_seats": 110
+}
+
+### Delete showtime
+DELETE {{baseUrl}}/showtimes/{{showtimeId}}
+Accept: {{accept}}
+
+###
+# BOOKINGS
+###
+# List bookings
+GET {{baseUrl}}/bookings
+Accept: {{accept}}
+
+### Create booking
+# @name createBooking
+POST {{baseUrl}}/bookings
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "showtime_id": {{showtimeId}},
+  "customer_name": "Ada Lovelace",
+  "customer_email": "ada@example.com",
+  "customer_phone": "+90 555 111 22 33",
+  "total_price": 150.00,
+  "booking_status": "pending",
+  "booking_code": "BK-{{$uuid}}",
+  "payment_method": "credit_card",
+  "payment_status": "pending",
+  "qr_code": "https://example.com/qr/{{$uuid}}"
+}
+
+@bookingId = {{createBooking.response.body.$.id}}
+
+### Get booking by id
+GET {{baseUrl}}/bookings/{{bookingId}}
+Accept: {{accept}}
+
+### Update booking
+PUT {{baseUrl}}/bookings/{{bookingId}}
+Content-Type: {{contentType}}
+Accept: {{accept}}
+
+{
+  "booking_status": "confirmed",
+  "payment_status": "paid"
+}
+
+### Delete booking
+DELETE {{baseUrl}}/bookings/{{bookingId}}
+Accept: {{accept}}
